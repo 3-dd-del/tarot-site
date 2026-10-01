@@ -26,6 +26,7 @@ async function markdownFiles() {
 }
 
 const techDoc = await readFile(path.join(docsDir, 'tech-solution.md'), 'utf8')
+const stepsDoc = await readFile(path.join(docsDir, 'reference-steps.md'), 'utf8')
 
 describe('技术方案文档', () => {
   it('覆盖选型、结构、数据、实现、素材、性能与测试', () => {
@@ -48,6 +49,21 @@ describe('技术方案文档', () => {
     assert.match(techDoc, /\| 框架 \| Astro \|/)
     assert.match(techDoc, /public\/img\/cards\//)
     assert.match(techDoc, /image-sources\.md/)
+  })
+})
+
+describe('参考步骤文档', () => {
+  it('覆盖建站、桌面入口与图标三件事', () => {
+    for (const heading of [
+      '## 1. 建站（Astro）',
+      '## 2. 选择在哪里打开',
+      '## 3. 创建桌面快捷方式',
+      '## 4. 换图标',
+    ]) {
+      assert.ok(stepsDoc.includes(heading), `参考步骤缺少小节：${heading}`)
+    }
+    assert.match(stepsDoc, /npm create astro@latest/)
+    assert.match(stepsDoc, /cloudflare/i)
   })
 })
 
