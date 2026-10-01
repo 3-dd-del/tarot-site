@@ -2,6 +2,8 @@
 
 一个关于塔罗牌的主题网站：**在线抽牌工具 + 牌义百科**。抽牌工具负责吸引用户与传播，78 张牌义页负责承接搜索流量，两者共用同一套内容。网站已经建好，可以本地运行，也可以直接部署到公网。
 
+**在线访问**：<https://3-dd-del.github.io/tarot-site/>
+
 ## 现在能做什么
 
 - 完整的抽牌主流程：选问题 → 确认 → 选牌阵 → 自己洗牌、逐张抽、逐张翻 → 按牌位解读 → 反思问答（可跳过）→ 个性化解读 → 保存图片
@@ -96,8 +98,22 @@ docker run --rm -p 8080:80 tarot-site
 
 发布说明写在根目录的 `RELEASE_NOTES.md`，每次发版前更新它。
 
+## 部署到 GitHub Pages
+
+推到 `main` 就会触发 `.github/workflows/pages.yml`：跑测试、构建、按子路径改写链接，然后发布到 <https://3-dd-del.github.io/tarot-site/>。第一次需要仓库开启 Pages（Settings → Pages → Source 选 GitHub Actions），之后全自动。
+
+站点源码里的链接都是根路径（`/_astro/…`、`/img/…`、`/data/cards.json`），而 Pages 的项目站点挂在 `/tarot-site/` 这种子路径下，根路径会整站 404。所以构建之后要多跑一步 `scripts/prefix-dist.mjs`，把产物里的根路径统一加上前缀——**只动构建产物，源码、本地构建、Release 附件和容器镜像都不受影响**。
+
+想本地预览子路径版本：
+
+```bash
+pnpm build
+node scripts/prefix-dist.mjs /tarot-site
+# 再用任意静态服务器把 dist/ 挂在 /tarot-site/ 下访问
+```
+
 ## 还没做的部分
 
-- 部署到公网（Cloudflare Pages 或 Vercel）——代码已经就绪，只差关联账号
+- 自己的域名（Cloudflare Pages 或 Vercel 绑定）——GitHub Pages 已经能访问，想要独立域名时再走这条路
 - 分享图的字体子集内嵌（当前用系统字体栈渲染，见技术方案 4.3）
 - 二选一（五张）牌阵、凯尔特十字、账号与收藏、大模型个性化解读，均在 MVP 之外
