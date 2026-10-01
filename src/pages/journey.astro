@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { loadCards } from '../lib/cards'
+
+const cards = await loadCards()
+const majors = cards.filter((card) => card.arcana === 'major')
+
+const narrative: Record<string, string> = {
+  'major-00': '愚者站在悬崖边上，行李很少，知道的不多。旅程从"我什么都不会，但我先走"开始。',
+  'major-01': '他遇到一位魔术师，看到桌上摆着四样工具。原来出发需要的不是勇气，而是愿意动手。',
+  'major-02': '接着是女祭司。她什么都没说，只让他安静下来。有些答案只能从里面长出来。',
+  'major-03': '他走进皇后的花园，第一次体会到被照顾是什么感觉。原来世界不只有赶路这一件事。',
+  'major-04': '皇帝给了他规则和秩序。他开始明白，自由如果没有结构，很快就会变成混乱。',
+  'major-05': '教皇带他认识传统。前人留下的路不一定对，但至少值得先走一段，再决定要不要改。',
+  'major-06': '恋人让他第一次做出真正的选择：不是选最好的，而是承认自己愿意为此放弃什么。',
+  'major-07': '他登上战车。两只猛兽朝不同方向拉，他必须靠意志把它们拧成一个方向。',
+  'major-08': '在狮子面前，他学会了不用武器。真正的力量不是压住情绪，而是带着它继续走。',
+  'major-09': '夜深了，他一个人举着灯站在雪山上。有些路必须自己走，有些问题必须自己想。',
+  'major-10': '轮子转了起来。他发现自己控制不了周期的起落，只能决定站在哪个位置。',
+  'major-11': '正义让他看清一件事：该承担的迟早要承担，逃避只是把账推给以后的自己。',
+  'major-12': '他被倒吊在树上，动不了。等到终于肯换一个角度看，那件事突然不一样了。',
+  'major-13': '死神来了。他以为这是惩罚，后来才明白，有些阶段必须真的关门，新的东西才进得来。',
+  'major-14': '天使把水在两杯之间来回倒。他学着调和：不极端，也不敷衍，找到能长期走下去的速度。',
+  'major-15': '恶魔举着松垮的链子。他第一次看清，那些"离不开"的东西，多半是自己没打算放开。',
+  'major-16': '塔被闪电击中了。他站在废墟里，发现塌掉的都是本来就没夯实的部分。',
+  'major-17': '夜里他抬头看见星星。还没有好转，但方向清楚了一点，这已经够他再走一段。',
+  'major-18': '月亮升起，路变得模糊。他学会了一件事：看不清的时候，不要做不可逆的决定。',
+  'major-19': '太阳出来了。他久违地感到轻松，也终于愿意把高兴的事说给别人听。',
+  'major-20': '号角响起，他回头看见走过来的整条路。承认自己做过的选择，比重新开始更难。',
+  'major-21': '最后他在花环中央停下来。这段旅程结束了，而下一段即将开始。',
+}
+---
+
+<BaseLayout title="愚者的旅程 · 22 张大阿卡纳的完整叙事 · 塔罗牌" description="把 22 张大阿卡纳串成愚者从出发到圆满的完整叙事，点击每一站展开这一段的故事与对应的牌义。">
+  <section class="shell max-w-3xl py-12">
+    <h1 class="text-2xl">愚者的旅程</h1>
+    <p class="mt-2 text-sm text-[var(--color-muted)]">
+      22
+      张大阿卡纳不是 22 个独立的关键词，而是一条有顺序的路：从一无所知地出发，到经历崩塌与告别，最后走到完整。点击每一站展开。
+    </p>
+
+    <ol class="mt-8 list-none space-y-3 p-0">
+      {
+        majors.map((card, index) => (
+          <li>
+            <details class="panel group" open={index === 0}>
+              <summary class="flex cursor-pointer items-center gap-3 text-base marker:content-none">
+                <span class="text-sm text-[var(--color-gold)]">{String(index).padStart(2, '0')}</span>
+                <span class="flex-1 font-[family-name:var(--font-display)] text-lg">{card.name}</span>
+                <span class="text-xs text-[var(--color-muted)] group-open:hidden">展开</span>
+                <span class="hidden text-xs text-[var(--color-muted)] group-open:inline">收起</span>
+              </summary>
+              <div class="mt-4 flex flex-col gap-4 sm:flex-row">
+                <img
+                  src={card.image}
+                  alt={`${card.name} ${card.nameEn}`}
+                  width="800"
+                  height="1333"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-28 shrink-0 self-start rounded-lg border border-[var(--color-night-line)]"
+                />
+                <div class="text-sm">
+                  <p class="text-[#d8d5ea]">{narrative[card.id]}</p>
+                  <p class="mt-2 text-[var(--color-muted)]">
+                    关键词：{card.keywords.join(' · ')}
+                  </p>
+                  <a class="btn btn-quiet mt-2" href={`/cards/${card.id}`}>看这张牌的完整牌义</a>
+                </div>
+              </div>
+            </details>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="panel mt-10">
+      <h2 class="text-lg">读完这条线，可以试试整副牌</h2>
+      <p class="mt-2 text-sm text-[var(--color-muted)]">
+        愚者的旅程只讲 22 张大牌。抽牌时会用到完整 78 张，小阿卡纳负责补齐日常的细节。
+      </p>
+      <a class="btn btn-primary mt-4" href="/read">开始抽牌</a>
+    </div>
+  </section>
+</BaseLayout>

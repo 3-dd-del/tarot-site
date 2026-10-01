@@ -1,0 +1,16 @@
+{
+  "name": "塔罗牌 · 自我觉察工具",
+  "short_name": "塔罗牌",
+  "description": "带着一个已经确认的问题抽一张牌，读到贴合语境的解读，再回看 78 张牌的牌义。",
+  "lang": "zh-CN",
+  "start_url": "/read",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0918",
+  "theme_color": "#0b0918",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,235 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-night: #0b0918;
+  --color-night-soft: #15122a;
+  --color-night-line: #2b2547;
+  --color-ink: #ece9f7;
+  --color-muted: #a29dbe;
+  --color-gold: #d8b16b;
+  --color-gold-soft: #f1dcad;
+  --color-rose: #c98a9a;
+  --font-display: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  --font-sans:
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-night);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.75;
+    background-image:
+      radial-gradient(60rem 40rem at 15% -10%, rgb(216 177 107 / 0.12), transparent 60%),
+      radial-gradient(50rem 30rem at 110% 10%, rgb(120 106 200 / 0.18), transparent 65%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 68rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  .panel {
+    background: color-mix(in oklab, var(--color-night-soft) 88%, transparent);
+    border: 1px solid var(--color-night-line);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.875rem;
+    padding: 0.6rem 1.35rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-night-line);
+    color: var(--color-ink);
+    background: rgb(255 255 255 / 0.03);
+    font-size: 0.95rem;
+    line-height: 1.2;
+    cursor: pointer;
+    transition:
+      transform 0.15s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .btn:hover {
+    border-color: var(--color-gold);
+    background: rgb(216 177 107 / 0.1);
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-gold), var(--color-gold-soft));
+    border-color: transparent;
+    color: #241a06;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--color-gold-soft), var(--color-gold));
+    border-color: transparent;
+  }
+
+  .btn-quiet {
+    border-color: transparent;
+    color: var(--color-muted);
+    background: transparent;
+  }
+
+  .btn-quiet:hover {
+    color: var(--color-ink);
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-night-line);
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .card-thumb {
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-night-line);
+    background: var(--color-night-soft);
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+
+  a:hover .card-thumb {
+    transform: translateY(-4px);
+    border-color: var(--color-gold);
+  }
+
+  /* MDX 正文排版：牌义页与教学页共用 */
+  .prose-cn h2 {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.15rem;
+    color: var(--color-gold-soft);
+  }
+
+  .prose-cn h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--color-ink);
+  }
+
+  .prose-cn p,
+  .prose-cn li {
+    margin-bottom: 0.75rem;
+    color: #d8d5ea;
+  }
+
+  .prose-cn ul,
+  .prose-cn ol {
+    padding-left: 1.15rem;
+    list-style: disc;
+  }
+
+  .prose-cn strong {
+    color: var(--color-gold-soft);
+  }
+}
+
+@utility step-hidden {
+  display: none;
+}
+
+@keyframes shuffle-left {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  50% {
+    transform: translateX(-1.6rem) rotate(-8deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes shuffle-right {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  50% {
+    transform: translateX(1.6rem) rotate(8deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes flip-in {
+  0% {
+    transform: rotateY(90deg) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.anim-shuffle-left {
+  animation: shuffle-left 0.75s ease-in-out 2;
+}
+
+.anim-shuffle-right {
+  animation: shuffle-right 0.75s ease-in-out 2;
+}
+
+.anim-flip {
+  animation: flip-in 0.8s cubic-bezier(0.22, 0.7, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-shuffle-left,
+  .anim-shuffle-right,
+  .anim-flip {
+    animation: none;
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "missingBuild": "还没有构建产物。\n\n请先在项目目录执行：\n    pnpm build\n然后再双击这个快捷方式。\n\n项目目录：{root}",
+  "startFailed": "本地服务启动失败：{error}\n\n可以换一个端口再试：\n    powershell -File scripts\\serve.ps1 -Port 4322",
+  "started": "塔罗牌已启动：{url}",
+  "stopHint": "关闭这个窗口就会停止本地服务。",
+  "shortcutName": "塔罗牌",
+  "shortcutDescription": "塔罗牌 · 本地站点"
+}

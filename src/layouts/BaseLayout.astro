@@ -1,0 +1,81 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description?: string
+  /** 静态页不挂任何客户端脚本，只有抽牌流程为 true */
+  island?: boolean
+}
+
+const {
+  title,
+  description = '用韦特体系做自我觉察的工具：带着一个已经确认的问题抽牌，得到贴合语境的三层解读，再回看 78 张牌的牌义。',
+  island = false,
+} = Astro.props
+
+const canonical = Astro.url.pathname
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#0b0918" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    {island && <meta name="tarot-island" content="read" />}
+  </head>
+  <body class="min-h-dvh">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-[var(--color-gold)] focus:px-4 focus:py-2 focus:text-black"
+    >
+      跳到正文
+    </a>
+    <header class="border-b border-[var(--color-night-line)]/70">
+      <div class="shell flex items-center justify-between gap-4 py-4">
+        <a href="/" class="flex items-center gap-2 no-underline">
+          <span
+            class="grid h-9 w-9 place-items-center rounded-full border border-[var(--color-gold)]/50 text-[var(--color-gold)]"
+            aria-hidden="true"
+            >✦</span
+          >
+          <span class="font-[family-name:var(--font-display)] text-lg tracking-wide">塔罗牌</span>
+        </a>
+        <nav class="flex items-center gap-1 text-sm" aria-label="主导航">
+          <a href="/read" class="btn btn-quiet">抽一张牌</a>
+          <a href="/cards" class="btn btn-quiet">牌义</a>
+          <a href="/learn" class="btn btn-quiet">入门</a>
+          <a href="/journey" class="btn btn-quiet">愚者的旅程</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="mt-16 border-t border-[var(--color-night-line)]/70 py-8 text-sm text-[var(--color-muted)]">
+      <div class="shell space-y-2">
+        <p>
+          本站是文化、娱乐与自我觉察工具，不做命运预测，也不提供医疗、法律或投资建议。解读是参考，不是结论。
+        </p>
+        <p>
+          牌面为 1909 年 Rider &amp; Company 出版、Pamela Colman Smith 绘制的韦特体系塔罗，已进入公有领域。扫描与修复：Steve P.（steve-p.org）。详见
+          <a class="underline decoration-dotted" href="/about">关于本站</a>。
+        </p>
+      </div>
+    </footer>
+
+    {island && <script is:inline src="/scripts/register-sw.js"></script>}
+  </body>
+</html>

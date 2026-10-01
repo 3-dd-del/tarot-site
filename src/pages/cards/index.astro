@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { loadCards } from '../../lib/cards'
+import { SUIT_LABELS, type Suit } from '../../lib/minor-rules'
+
+const cards = await loadCards()
+const majors = cards.filter((card) => card.arcana === 'major')
+const suits: Suit[] = ['wands', 'cups', 'swords', 'pentacles']
+
+const groups = suits.map((suit) => ({
+  suit,
+  label: SUIT_LABELS[suit],
+  cards: cards.filter((card) => card.suit === suit),
+}))
+---
+
+<BaseLayout title="78 张牌义索引 · 塔罗牌" description="韦特体系 78 张牌的画面、象征、通用含义与分场景含义，大阿卡纳完整版，小阿卡纳简化版。">
+  <section class="shell py-12">
+    <h1 class="text-2xl">78 张牌义</h1>
+    <p class="mt-2 max-w-2xl text-sm text-[var(--color-muted)]">
+      每张牌都写明画面里的元素为什么指向这个含义，并附上「这张牌不意味着什么」来破除常见误读。22
+      张大阿卡纳是完整版，56 张小阿卡纳是简化版。
+    </p>
+
+    <nav class="mt-5 flex flex-wrap gap-2 text-sm" aria-label="牌义分类">
+      <a class="btn btn-quiet" href="#major">大阿卡纳 22</a>
+      {groups.map((group) => <a class="btn btn-quiet" href={`#${group.suit}`}>{group.label} 14</a>)}
+    </nav>
+
+    <section id="major" class="mt-10 scroll-mt-24">
+      <h2 class="text-xl">大阿卡纳</h2>
+      <ul class="mt-4 grid list-none grid-cols-2 gap-4 p-0 sm:grid-cols-3 md:grid-cols-5">
+        {
+          majors.map((card) => (
+            <li>
+              <a href={`/cards/${card.id}`} class="block no-underline">
+                <img
+                  class="card-thumb"
+                  src={card.image}
+                  alt={`${card.name} ${card.nameEn}`}
+                  width="800"
+                  height="1333"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span class="mt-2 block text-sm">{card.name}</span>
+                <span class="block text-xs text-[var(--color-muted)]">{card.keywords.slice(0, 3).join(' · ')}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {
+      groups.map((group) => (
+        <section id={group.suit} class="mt-12 scroll-mt-24">
+          <h2 class="text-xl">{group.label}</h2>
+          <ul class="mt-4 grid list-none grid-cols-2 gap-4 p-0 sm:grid-cols-3 md:grid-cols-5">
+            {group.cards.map((card) => (
+              <li>
+                <a href={`/cards/${card.id}`} class="block no-underline">
+                  <img
+                    class="card-thumb"
+                    src={card.image}
+                    alt={`${card.name} ${card.nameEn}`}
+                    width="800"
+                    height="1333"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class="mt-2 block text-sm">{card.name}</span>
+                  <span class="block text-xs text-[var(--color-muted)]">
+                    {card.keywords.slice(0, 3).join(' · ')}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </section>
+</BaseLayout>

@@ -55,15 +55,39 @@ describe('技术方案文档', () => {
 describe('参考步骤文档', () => {
   it('覆盖建站、桌面入口与图标三件事', () => {
     for (const heading of [
-      '## 1. 建站（Astro）',
+      '## 1. 建站与运行（Astro）',
       '## 2. 选择在哪里打开',
       '## 3. 创建桌面快捷方式',
       '## 4. 换图标',
     ]) {
       assert.ok(stepsDoc.includes(heading), `参考步骤缺少小节：${heading}`)
     }
-    assert.match(stepsDoc, /npm create astro@latest/)
+    assert.match(stepsDoc, /pnpm build/)
     assert.match(stepsDoc, /cloudflare/i)
+    assert.match(stepsDoc, /create-shortcut\.ps1/)
+    assert.match(stepsDoc, /serve\.ps1/)
+  })
+
+  it('桌面入口用到的文件都真实存在', async () => {
+    for (const file of [
+      '启动塔罗牌.bat',
+      'scripts/serve.ps1',
+      'scripts/create-shortcut.ps1',
+      'scripts/make-icon.mjs',
+      'assets/tarot.ico',
+      'public/favicon.ico',
+      'public/site.webmanifest',
+      'public/sw.js',
+    ]) {
+      assert.ok(await exists(path.join(root, file)), `缺少文件：${file}`)
+    }
+  })
+
+  it('README 说明了本地运行与桌面快捷方式', async () => {
+    const readme = await readFile(path.join(root, 'README.md'), 'utf8')
+    assert.match(readme, /pnpm dev/)
+    assert.match(readme, /pnpm verify/)
+    assert.match(readme, /create-shortcut\.ps1/)
   })
 })
 

@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { loadCards } from '../lib/cards'
+
+const cards = await loadCards()
+const majors = cards.filter((card) => card.arcana === 'major')
+
+const steps = [
+  {
+    title: '先带着一个确认过的问题',
+    body: '从八个分类里挑一个最贴近的，或者直接点「说不清，直接抽一张牌」。问题越具体，牌越有解释的锚点。',
+  },
+  {
+    title: '洗牌、抽牌、翻牌',
+    body: '结果在动画开始前就已经算好，你看到的只是它被翻开的过程。翻牌之后，同一个问题当天不再重抽。',
+  },
+  {
+    title: '读三层解读',
+    body: '先看画面，再看象征，最后看它落到你的问题上意味着什么。愿意的话回答两三个问题，解读会再具体一点。',
+  },
+]
+---
+
+<BaseLayout title="塔罗牌 · 带着一个问题抽一张牌">
+  <section class="shell pt-14 pb-10 text-center">
+    <p class="tag mb-5">韦特体系 · 78 张</p>
+    <h1 class="text-3xl leading-snug sm:text-4xl">
+      它不告诉你会发生什么，<br class="hidden sm:block" />只帮你看清现在站在哪里
+    </h1>
+    <p class="mx-auto mt-5 max-w-2xl text-[var(--color-muted)]">
+      带着一个已经确认的问题抽一张牌，得到贴合语境的解读；再去 78 张牌义页里，逐个看清画面里的元素为什么指向这个含义。
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a class="btn btn-primary" href="/read">开始抽牌</a>
+      <a class="btn" href="/cards">查看 78 张牌义</a>
+      <a class="btn btn-quiet" href="/learn">从零入门</a>
+    </div>
+  </section>
+
+  <section class="shell grid gap-4 py-8 sm:grid-cols-3">
+    {
+      steps.map((step, index) => (
+        <article class="panel">
+          <p class="text-sm text-[var(--color-gold)]">第 {index + 1} 步</p>
+          <h2 class="mt-2 text-lg">{step.title}</h2>
+          <p class="mt-2 text-sm text-[var(--color-muted)]">{step.body}</p>
+        </article>
+      ))
+    }
+  </section>
+
+  <section class="shell py-8">
+    <div class="panel flex flex-col gap-5 sm:flex-row sm:items-center">
+      <img
+        id="daily-image"
+        src="/img/cards/major-00.webp"
+        alt="今日之牌"
+        width="800"
+        height="1333"
+        loading="lazy"
+        decoding="async"
+        class="mx-auto w-40 rounded-xl border border-[var(--color-night-line)] sm:mx-0 sm:w-44"
+      />
+      <div class="flex-1">
+        <p class="tag">今日一牌</p>
+        <h2 id="daily-name" class="mt-3 text-xl">愚者</h2>
+        <p id="daily-keywords" class="mt-1 text-sm text-[var(--color-gold)]">
+          开始 · 自由 · 冒险 · 天真
+        </p>
+        <p id="daily-meaning" class="mt-3 text-sm text-[var(--color-muted)]">
+          每天一张，不用提问，只是给你一个当天的观察角度。
+        </p>
+        <a id="daily-link" class="btn btn-quiet mt-3" href="/cards/major-00">看这张牌的完整牌义</a>
+      </div>
+    </div>
+    <noscript>
+      <p class="mt-3 text-xs text-[var(--color-muted)]">开启 JavaScript 可以看到今天的这张牌。</p>
+    </noscript>
+  </section>
+
+  <section class="shell py-8">
+    <div class="flex items-end justify-between gap-4">
+      <h2 class="text-xl">22 张大阿卡纳</h2>
+      <a class="text-sm text-[var(--color-muted)] underline decoration-dotted" href="/cards"
+        >全部 78 张 →</a
+      >
+    </div>
+    <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+      {
+        majors.map((card) => (
+          <a href={`/cards/${card.id}`} class="no-underline">
+            <img
+              class="card-thumb"
+              src={card.image}
+              alt={`${card.name} ${card.nameEn}`}
+              width="800"
+              height="1333"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="mt-1 block text-center text-xs text-[var(--color-muted)]">{card.name}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="shell py-10">
+    <div class="panel">
+      <h2 class="text-lg">这是一个反思工具，不是预测工具</h2>
+      <p class="mt-2 text-sm text-[var(--color-muted)]">
+        解读里不会出现「你将会」「必然」这类说法，也不会替你做健康、法律和投资的判断。生死与自伤类问题会直接终止解读，并给出专业求助渠道。抽牌结果独立于你的回答：回答只改变落地的建议，不改变这张牌指向的方向。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-sm">
+        <a class="btn btn-quiet" href="/journey">愚者的旅程</a>
+        <a class="btn btn-quiet" href="/about">关于本站与素材来源</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // 首页唯一的脚本：按日期确定性地挑一张牌，数据懒加载，不影响首屏。
+    type DailyCard = {
+      id: string
+      name: string
+      nameEn: string
+      keywords: string[]
+      sections: { meaning: string }
+      image: string
+    }
+
+    function startOfYear(date: Date): number {
+      return new Date(date.getFullYear(), 0, 0).getTime()
+    }
+
+    function setDaily(card: DailyCard) {
+      const image = document.getElementById('daily-image') as HTMLImageElement | null
+      const name = document.getElementById('daily-name')
+      const keywords = document.getElementById('daily-keywords')
+      const meaning = document.getElementById('daily-meaning')
+      const link = document.getElementById('daily-link') as HTMLAnchorElement | null
+      if (!image || !name || !keywords || !meaning || !link) return
+
+      image.src = card.image
+      image.alt = `${card.name} ${card.nameEn}`
+      name.textContent = card.name
+      keywords.textContent = card.keywords.join(' · ')
+      meaning.textContent = card.sections.meaning.replace(/\s+/g, '')
+      link.href = `/cards/${card.id}`
+    }
+
+    function pickToday(cards: DailyCard[]): DailyCard {
+      const now = new Date()
+      const day = Math.floor((now.getTime() - startOfYear(now)) / 86_400_000)
+      return cards[day % cards.length]!
+    }
+
+    const run = () => {
+      fetch('/data/cards.json')
+        .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+        .then((cards: DailyCard[]) => setDaily(pickToday(cards)))
+        .catch(() => {
+          /* 拿不到数据就保留默认的那张牌 */
+        })
+    }
+
+    if ('requestIdleCallback' in window) {
+      ;(window as Window & { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(
+        run,
+      )
+    } else {
+      window.addEventListener('load', run)
+    }
+  </script>
+</BaseLayout>

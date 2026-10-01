@@ -1,0 +1,99 @@
+---
+import { getCollection, render } from 'astro:content'
+
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { toReadingCard } from '../../lib/cards'
+import { buildContextLayer } from '../../lib/reading'
+import { CATEGORIES } from '../../lib/questions'
+import { SUIT_ELEMENT, SUIT_LABELS } from '../../lib/minor-rules'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('cards')
+  return entries.map((entry) => ({ params: { id: entry.data.id }, props: { entry } }))
+}
+
+const { entry } = Astro.props
+const card = toReadingCard(entry)
+const { Content } = await render(entry)
+
+const isMajor = card.arcana === 'major'
+const suitLabel = card.suit ? SUIT_LABELS[card.suit] : null
+const element = card.suit ? SUIT_ELEMENT[card.suit] : card.element
+const scenes = isMajor
+  ? []
+  : CATEGORIES.map((category) => ({
+      label: category.label,
+      text: buildContextLayer(card, category.id),
+    }))
+
+const title = `${card.name} ${card.nameEn} · 牌义 · 塔罗牌`
+---
+
+<BaseLayout title={title} description={`${card.name}的画面、象征、通用含义与分场景含义。${card.keywords.join('、')}。`}>
+  <article class="shell py-10">
+    <nav class="text-sm text-[var(--color-muted)]">
+      <a href="/cards" class="underline decoration-dotted">78 张牌义</a>
+      <span aria-hidden="true"> / </span>
+      <span>{card.name}</span>
+    </nav>
+
+    <div class="mt-6 grid gap-8 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+      <div>
+        <img
+          src={card.image}
+          alt={`${card.name} ${card.nameEn}`}
+          width="800"
+          height="1333"
+          class="w-full rounded-2xl border border-[var(--color-night-line)]"
+        />
+        <dl class="mt-4 space-y-2 text-sm text-[var(--color-muted)]">
+          <div class="flex gap-2">
+            <dt>牌组</dt>
+            <dd class="text-[var(--color-ink)]">
+              {isMajor ? '大阿卡纳' : `小阿卡纳 · ${suitLabel}`}
+            </dd>
+          </div>
+          <div class="flex gap-2">
+            <dt>数字</dt>
+            <dd class="text-[var(--color-ink)]">{card.number}</dd>
+          </div>
+          <div class="flex gap-2">
+            <dt>元素</dt>
+            <dd class="text-[var(--color-ink)]">{element}</dd>
+          </div>
+        </dl>
+        <a class="btn btn-primary mt-4 w-full" href="/read">去抽一张牌</a>
+      </div>
+
+      <div>
+        <h1 class="text-3xl">{card.name}</h1>
+        <p class="mt-1 text-sm text-[var(--color-muted)]">{card.nameEn}</p>
+        <p class="mt-3 flex flex-wrap gap-2">
+          {card.keywords.map((keyword) => <span class="tag">{keyword}</span>)}
+        </p>
+
+        <div class="prose-cn mt-6">
+          <Content />
+        </div>
+
+        {
+          scenes.length > 0 && (
+            <section class="prose-cn mt-8">
+              <h2>分场景含义</h2>
+              <p class="text-xs text-[var(--color-muted)]">
+                小阿卡纳的场景解读由花色倾向、数字阶段和牌义核心组合而成，口径与 22
+                张大阿卡纳一致，但更简略。
+              </p>
+              {scenes.map((scene) => (
+                <div>
+                  <h3>{scene.label}</h3>
+                  <p>{scene.text}</p>
+                </div>
+              ))}
+            </section>
+          )
+        }
+      </div>
+    </div>
+  </article>
+</BaseLayout>

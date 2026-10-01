@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="塔罗牌">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d1840" />
+      <stop offset="1" stop-color="#0b0918" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)" />
+  <rect
+    x="1.6"
+    y="1.6"
+    width="60.8"
+    height="60.8"
+    rx="12.6"
+    fill="none"
+    stroke="#d8b16b"
+    stroke-opacity="0.55"
+    stroke-width="2.2"
+  />
+  <path d="M42 47a17 17 0 1 1 7-24 13.5 13.5 0 0 0-7 24z" fill="#d8b16b" />
+  <path d="M22.5 12.5l1.7 4.4 4.3 1.6-4.3 1.6-1.7 4.4-1.7-4.4-4.3-1.6 4.3-1.6z" fill="#f1dcad" />
+</svg>

@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from 'astro:content'
+
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+const lessons = (await getCollection('learn')).sort((a, b) => a.data.order - b.data.order)
+const rendered = await Promise.all(
+  lessons.map(async (lesson) => ({ lesson, Content: (await render(lesson)).Content })),
+)
+---
+
+<BaseLayout title="从零开始的塔罗入门 · 塔罗牌" description="一条有顺序的学习路径：塔罗是什么、78 张牌的结构、花色与四元素、数字阶段、宫廷牌、正逆位与牌阵。">
+  <section class="shell max-w-3xl py-12">
+    <h1 class="text-2xl">入门路径</h1>
+    <p class="mt-2 text-sm text-[var(--color-muted)]">
+      这不是一份百科索引，而是一条有顺序的路。按顺序读完大约需要二十分钟；如果只想先上手，直接去
+      <a class="underline decoration-dotted" href="/read">抽一张牌</a> 也可以，回来再补这一课。
+    </p>
+
+    <nav class="panel mt-6">
+      <ol class="m-0 list-none space-y-2 p-0 text-sm">
+        {
+          rendered.map(({ lesson }, index) => (
+            <li>
+              <a href={`#lesson-${index + 1}`} class="no-underline">
+                <span class="text-[var(--color-gold)]">{String(lesson.data.order).padStart(2, '0')}</span>
+                <span class="ml-2">{lesson.data.title}</span>
+                <span class="ml-2 text-[var(--color-muted)]">— {lesson.data.summary}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    {
+      rendered.map(({ lesson, Content }, index) => (
+        <article id={`lesson-${index + 1}`} class="mt-12 scroll-mt-24">
+          <p class="text-sm text-[var(--color-gold)]">
+            第 {lesson.data.order} 课 · 约 {Math.max(2, Math.round((lesson.body?.length ?? 200) / 220))} 分钟
+          </p>
+          <h2 class="mt-1 text-2xl">{lesson.data.title}</h2>
+          <div class="prose-cn mt-4">
+            <Content />
+          </div>
+        </article>
+      ))
+    }
+
+    <div class="panel mt-12">
+      <h2 class="text-lg">读完了，去试一次</h2>
+      <p class="mt-2 text-sm text-[var(--color-muted)]">
+        带着一个具体的问题，走完一次完整流程，比再读十页资料更有用。
+      </p>
+      <a class="btn btn-primary mt-4" href="/read">开始抽牌</a>
+    </div>
+  </section>
+</BaseLayout>
