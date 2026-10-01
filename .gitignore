@@ -26,3 +26,7 @@ Thumbs.db
 # 缓存
 .cache/
 .turbo/
+
+# 测试与编辑器产物
+coverage/
+*.tsbuildinfo
