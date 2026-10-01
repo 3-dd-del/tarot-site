@@ -72,6 +72,30 @@ powershell -ExecutionPolicy Bypass -File scripts\create-shortcut.ps1
 - 牌面素材来源与许可：[docs/image-sources.md](docs/image-sources.md)
 - 建站与桌面入口的操作步骤：[docs/reference-steps.md](docs/reference-steps.md)
 
+## 发布与镜像
+
+打一个 `v*` 标签，就会触发 `.github/workflows/release.yml`：跑测试与构建、把 `dist/` 打成 zip 作为 Release 附件、构建容器镜像推到 GitHub Packages，最后建 Release。用的是仓库内置的 `GITHUB_TOKEN`，不需要额外配置 secret。
+
+```bash
+git tag v0.3.0
+git push origin v0.3.0
+```
+
+产物有两份：
+
+- **Release 附件**：`tarot-site-dist.zip`，构建好的静态站点，解压后用任意静态服务器托管
+- **容器镜像**：`ghcr.io/3-dd-del/tarot-site:0.3.0` 与 `:latest`
+
+本地打镜像（需要先构建，镜像里只放 `dist/` 的静态文件）：
+
+```bash
+pnpm build
+docker build -t tarot-site .
+docker run --rm -p 8080:80 tarot-site
+```
+
+发布说明写在根目录的 `RELEASE_NOTES.md`，每次发版前更新它。
+
 ## 还没做的部分
 
 - 部署到公网（Cloudflare Pages 或 Vercel）——代码已经就绪，只差关联账号

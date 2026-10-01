@@ -1,0 +1,81 @@
+name: 发布
+
+# 打一个 v* 的标签，就把站点发布出去：
+#   1. 跑测试与构建
+#   2. 把 dist/ 打成 zip，作为 Release 的附件
+#   3. 构建容器镜像并推到 GitHub Packages（ghcr.io）
+#   4. 建 Release
+# 用内置的 GITHUB_TOKEN，不需要额外配置任何 secret。
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write # 创建 Release
+  packages: write # 推送 ghcr.io 镜像
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: 构建、发版与打包
+    runs-on: ubuntu-latest
+    steps:
+      - name: 取出源码
+        uses: actions/checkout@v4
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 安装 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 内容校验与单元测试
+        run: pnpm test
+
+      - name: 构建并冒烟
+        run: pnpm verify
+
+      - name: 打包构建产物
+        run: |
+          set -euo pipefail
+          cd dist
+          zip -qr ../tarot-site-dist.zip .
+          cd ..
+          ls -lh tarot-site-dist.zip
+
+      - name: 登录 GitHub Packages
+        run: echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: 构建并推送容器镜像
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          image="ghcr.io/${{ github.repository }}"
+          docker build -t "$image:$version" -t "$image:latest" .
+          docker push "$image:$version"
+          docker push "$image:latest"
+          echo "镜像已推送：$image:$version / $image:latest"
+
+      - name: 创建 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" tarot-site-dist.zip \
+            --title "$GITHUB_REF_NAME · 塔罗牌网站" \
+            --notes-file RELEASE_NOTES.md \
+            --latest

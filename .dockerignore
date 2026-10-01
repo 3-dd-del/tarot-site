@@ -1,0 +1,11 @@
+node_modules
+.astro
+.git
+.github
+.vscode
+docs
+tests
+scripts
+*.log
+*.tsbuildinfo
+coverage
