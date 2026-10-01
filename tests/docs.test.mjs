@@ -27,6 +27,7 @@ async function markdownFiles() {
 
 const techDoc = await readFile(path.join(docsDir, 'tech-solution.md'), 'utf8')
 const stepsDoc = await readFile(path.join(docsDir, 'reference-steps.md'), 'utf8')
+const designDoc = await readFile(path.join(docsDir, 'product-design.md'), 'utf8')
 
 describe('技术方案文档', () => {
   it('覆盖选型、结构、数据、实现、素材、性能与测试', () => {
@@ -100,6 +101,64 @@ describe('参考步骤文档', () => {
     }
     assert.match(stepsDoc, /按问题类型自动推荐/)
     assert.match(stepsDoc, /翻牌顺序不改变抽到的牌/)
+  })
+})
+
+describe('产品设计文档 · 占卜方法与用户旅程', () => {
+  it('收录占卜方法论与用户旅程的全部小节', () => {
+    for (const heading of [
+      '## 11. 占卜方法论',
+      '### 11.1 提问规则：整个产品的第一道闸门',
+      '### 11.2 洗牌、切牌、抽牌：三件不能省的事',
+      '### 11.3 牌阵：一个问题需要几个角度',
+      '### 11.4 解牌五步',
+      '### 11.5 语气与边界',
+      '### 11.6 复盘：让解读可以被验证',
+      '## 12. 用户视角：一次完整的游玩',
+    ]) {
+      assert.ok(designDoc.includes(heading), `产品设计文档缺少小节：${heading}`)
+    }
+  })
+
+  it('提问规则给出四条要求与转译对照', () => {
+    for (const marker of [
+      '聚焦自己',
+      '开放',
+      '有行动空间',
+      '不窥探第三方',
+      '同一个问题当天只抽一次',
+    ]) {
+      assert.ok(designDoc.includes(marker), `提问规则缺少：${marker}`)
+    }
+    assert.match(designDoc, /我今年会不会被裁/)
+    assert.match(designDoc, /这份投资会不会赚/)
+  })
+
+  it('牌阵一节给出三个牌阵与各自牌位', () => {
+    for (const marker of [
+      '单张牌',
+      '时间流',
+      '处境',
+      '过去 · 现在 · 未来',
+      '现状 · 阻碍 · 建议',
+      '凯尔特十字（十张）不做',
+    ]) {
+      assert.ok(designDoc.includes(marker), `牌阵一节缺少：${marker}`)
+    }
+  })
+
+  it('用户旅程逐拍覆盖主流程的每一步', () => {
+    for (let step = 0; step <= 7; step += 1) {
+      assert.ok(designDoc.includes(`拍 ${step}`), `用户旅程缺少：拍 ${step}`)
+    }
+    assert.ok(designDoc.includes('拍 2.5｜选牌阵'), '用户旅程缺少选牌阵这一拍')
+  })
+
+  it('旅程里抽到的那张牌真实存在，且牌位口径与牌义页一致', async () => {
+    assert.match(designDoc, /宝剑八 · 正位/)
+    const card = await readFile(path.join(root, 'src', 'content', 'cards', 'swords-08.mdx'), 'utf8')
+    assert.match(card, /name: 宝剑八/)
+    assert.ok(designDoc.includes('这张牌不意味着什么'), '旅程应提到「不意味着什么」小节')
   })
 })
 

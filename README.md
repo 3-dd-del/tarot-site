@@ -65,7 +65,7 @@ powershell -ExecutionPolicy Bypass -File scripts\create-shortcut.ps1
 
 ## 文档
 
-- 产品方向与流程：[docs/product-design.md](docs/product-design.md)
+- 产品方向、流程、占卜方法与用户旅程：[docs/product-design.md](docs/product-design.md)
 - 技术方案与落地细节：[docs/tech-solution.md](docs/tech-solution.md)
 - 牌面素材来源与许可：[docs/image-sources.md](docs/image-sources.md)
 - 建站与桌面入口的操作步骤：[docs/reference-steps.md](docs/reference-steps.md)
