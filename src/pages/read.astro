@@ -5,7 +5,8 @@ import { CATEGORIES, FREE_DRAW_LABEL } from '../lib/questions'
 const steps = [
   { id: 'question', label: '选问题' },
   { id: 'confirm', label: '确认' },
-  { id: 'draw', label: '抽牌' },
+  { id: 'spread', label: '选牌阵' },
+  { id: 'draw', label: '洗牌抽牌' },
   { id: 'core', label: '核心解读' },
   { id: 'reflect', label: '反思问答' },
   { id: 'personal', label: '个性化解读' },
@@ -14,8 +15,8 @@ const steps = [
 ---
 
 <BaseLayout
-  title="抽一张牌 · 塔罗牌"
-  description="带着一个已经确认的问题抽一张牌：洗牌、翻牌，然后读画面、象征和结合问题的三层解读。"
+  title="抽牌 · 塔罗牌"
+  description="带着一个已经确认的问题抽牌：先选牌阵，再自己洗牌、逐张抽、逐张翻，然后读画面、象征、正逆位和结合问题的解读。"
   island={true}
 >
   <section class="shell max-w-3xl py-8" data-read-app>
@@ -40,7 +41,7 @@ const steps = [
     <section data-step="question" class="mt-6">
       <h1 class="text-2xl">先选一个最贴近的问题</h1>
       <p class="mt-2 text-sm text-[var(--color-muted)]">
-        一级分类有八个，点开后再挑一条具体问法。选不出来也没关系，最后有一个出口。
+        一级分类有八个，点开后再挑一条具体问法。选不出来也没关系，最后有一个出口。接下来还会让你选牌阵、自己洗牌抽牌。
       </p>
 
       <div class="mt-6 grid gap-3 sm:grid-cols-2" data-category-list>
@@ -71,6 +72,7 @@ const steps = [
     </section>
 
     <section data-step="confirm" class="mt-6 hidden"></section>
+    <section data-step="spread" class="mt-6 hidden"></section>
     <section data-step="draw" class="mt-6 hidden"></section>
     <section data-step="core" class="mt-6 hidden"></section>
     <section data-step="reflect" class="mt-6 hidden"></section>

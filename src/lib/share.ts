@@ -1,6 +1,7 @@
 /**
  * 分享卡片出图（产品设计文档 3.5、技术方案 4.3）。
  * 全程在客户端用 Canvas 绘制，不上传服务器；竖版长图与方图共用一份布局代码，只切换画布参数。
+ * 单张与三张共用同一套布局：按张数自动选卡面宽度并居中。
  */
 
 export const SHARE_VARIANTS = {
@@ -12,11 +13,19 @@ export type ShareVariant = keyof typeof SHARE_VARIANTS
 
 export const BRAND = '塔罗牌 · 自我觉察工具'
 
+export interface ShareCard {
+  id: string
+  name: string
+  image: string
+  /** 牌位名，例如「过去」；单张牌时为空 */
+  label: string
+  /** 逆位的牌，出图时旋转 180° */
+  reversed: boolean
+}
+
 export interface ShareContent {
-  cardId: string
-  cardName: string
-  cardNameEn: string
-  cardImage: string
+  cards: ShareCard[]
+  spreadName: string
   question: string
   core: string
   advice: string
@@ -24,22 +33,24 @@ export interface ShareContent {
 }
 
 export interface ShareInput {
-  cardId: string
-  cardName: string
-  cardNameEn: string
-  cardImage: string
+  cards: ShareCard[]
+  spreadName: string
   question: string
   coreReading: string
   advice: string
 }
 
-/** 出图内容只保留牌面、问题、核心解读摘要与一句建议。 */
+/** 出图内容只保留牌面、牌位、问题、核心解读摘要与一句建议。 */
 export function buildShareContent(input: ShareInput): ShareContent {
   return {
-    cardId: input.cardId,
-    cardName: input.cardName,
-    cardNameEn: input.cardNameEn,
-    cardImage: input.cardImage,
+    cards: input.cards.slice(0, 3).map((card) => ({
+      id: card.id,
+      name: card.name,
+      image: card.image,
+      label: card.label.trim(),
+      reversed: card.reversed,
+    })),
+    spreadName: input.spreadName.trim(),
     question: input.question.trim(),
     core: input.coreReading.replace(/\s+/g, '').trim(),
     advice: input.advice.replace(/\s+/g, '').trim(),
@@ -84,35 +95,47 @@ export function summarize(text: string, limit: number): string {
   return plain.length > limit ? `${plain.slice(0, limit)}…` : plain
 }
 
+interface CardBox {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
 interface Layout {
-  card: { x: number; y: number; w: number; h: number }
+  boxes: CardBox[]
   titleSize: number
   bodySize: number
   margin: number
   brandY: number
 }
 
-function layoutFor(variant: ShareVariant, cardWidth: number): Layout {
-  if (variant === 'square') {
-    return {
-      card: { x: (1080 - cardWidth) / 2, y: 70, w: cardWidth, h: (cardWidth * 1333) / 800 },
-      titleSize: 40,
-      bodySize: 30,
-      margin: 80,
-      brandY: 1010,
-    }
-  }
+/** 1 张放大、2 张并排、3 张一字排开，三种尺寸都居中。 */
+function layoutFor(variant: ShareVariant, count: number): Layout {
+  const spec =
+    variant === 'square'
+      ? { y: 54, widths: [300, 250, 208], gap: 24, titleSize: 38, bodySize: 29, margin: 76, brandY: 1012 }
+      : { y: 128, widths: [520, 396, 296], gap: 36, titleSize: 48, bodySize: 33, margin: 96, brandY: 1852 }
+
+  const safeCount = Math.min(Math.max(count, 1), 3)
+  const width = spec.widths[safeCount - 1]!
+  const total = safeCount * width + (safeCount - 1) * spec.gap
+  const startX = (1080 - total) / 2
+  const height = (width * 1333) / 800
 
   return {
-    card: { x: (1080 - cardWidth) / 2, y: 150, w: cardWidth, h: (cardWidth * 1333) / 800 },
-    titleSize: 48,
-    bodySize: 34,
-    margin: 96,
-    brandY: 1850,
+    boxes: Array.from({ length: safeCount }, (_, index) => ({
+      x: startX + index * (width + spec.gap),
+      y: spec.y,
+      w: width,
+      h: height,
+    })),
+    titleSize: spec.titleSize,
+    bodySize: spec.bodySize,
+    margin: spec.margin,
+    brandY: spec.brandY,
   }
 }
-
-const CARD_WIDTH: Record<ShareVariant, number> = { story: 520, square: 300 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -145,8 +168,8 @@ export async function renderShareImage(
     /* 字体接口不可用就继续，用系统字体渲染 */
   }
 
-  const image = await loadImage(content.cardImage)
-  const layout = layoutFor(variant, CARD_WIDTH[variant])
+  const layout = layoutFor(variant, content.cards.length)
+  const images = await Promise.all(content.cards.map((card) => loadImage(card.image)))
 
   const background = ctx.createLinearGradient(0, 0, width, height)
   background.addColorStop(0, '#0b0918')
@@ -155,39 +178,69 @@ export async function renderShareImage(
   ctx.fillStyle = background
   ctx.fillRect(0, 0, width, height)
 
-  ctx.save()
-  ctx.shadowColor = 'rgba(216, 177, 107, 0.35)'
-  ctx.shadowBlur = 40
-  ctx.strokeStyle = '#d8b16b'
-  ctx.lineWidth = 4
-  const { x, y, w, h } = layout.card
-  ctx.beginPath()
-  if (typeof ctx.roundRect === 'function') ctx.roundRect(x, y, w, h, 24)
-  else ctx.rect(x, y, w, h)
-  ctx.stroke()
-  ctx.restore()
-  ctx.drawImage(image, x, y, w, h)
-
   const fontStack =
     '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif'
   const maxWidth = width - layout.margin * 2
 
-  let cursor = layout.card.y + layout.card.h + 70
+  images.forEach((image, index) => {
+    const box = layout.boxes[index]
+    if (!box) return
+    ctx.save()
+    ctx.shadowColor = 'rgba(216, 177, 107, 0.35)'
+    ctx.shadowBlur = 32
+    ctx.strokeStyle = '#d8b16b'
+    ctx.lineWidth = 3
+    ctx.beginPath()
+    if (typeof ctx.roundRect === 'function') ctx.roundRect(box.x, box.y, box.w, box.h, 20)
+    else ctx.rect(box.x, box.y, box.w, box.h)
+    ctx.stroke()
+    ctx.restore()
 
+    // 逆位：整张牌转 180°，和界面上看到的一致。
+    if (content.cards[index]?.reversed) {
+      ctx.save()
+      ctx.translate(box.x + box.w / 2, box.y + box.h / 2)
+      ctx.rotate(Math.PI)
+      ctx.drawImage(image, -box.w / 2, -box.h / 2, box.w, box.h)
+      ctx.restore()
+    } else {
+      ctx.drawImage(image, box.x, box.y, box.w, box.h)
+    }
+  })
+
+  // 牌位名与正逆位放在各自牌面下方
   ctx.textAlign = 'center'
+  ctx.fillStyle = '#a29dbe'
+  ctx.font = `400 ${Math.round(layout.bodySize * 0.82)}px ${fontStack}`
+  layout.boxes.forEach((box, index) => {
+    const card = content.cards[index]
+    const label = card ? `${card.label}${card.reversed ? ' · 逆位' : ''}`.trim() : ''
+    if (label) ctx.fillText(label, box.x + box.w / 2, box.y + box.h + 40)
+  })
+
+  const lastBox = layout.boxes[layout.boxes.length - 1]!
+  let cursor = lastBox.y + lastBox.h + 104
+
   ctx.fillStyle = '#f1dcad'
   ctx.font = `600 ${layout.titleSize}px ${fontStack}`
-  ctx.fillText(content.cardName, width / 2, cursor)
+  const title = content.cards.length > 1 ? content.spreadName : (content.cards[0]?.name ?? '')
+  if (title) ctx.fillText(title, width / 2, cursor)
 
-  cursor += 42
-  ctx.fillStyle = '#a29dbe'
-  ctx.font = `300 ${Math.round(layout.titleSize * 0.5)}px ${fontStack}`
-  ctx.fillText(content.cardNameEn, width / 2, cursor)
+  if (content.cards.length > 1) {
+    cursor += Math.round(layout.titleSize * 0.82)
+    ctx.fillStyle = '#a29dbe'
+    ctx.font = `300 ${Math.round(layout.titleSize * 0.52)}px ${fontStack}`
+    ctx.fillText(
+      content.cards.map((card) => `${card.name}${card.reversed ? '逆' : ''}`).join(' · '),
+      width / 2,
+      cursor,
+    )
+  }
 
   if (content.question) {
     cursor += Math.round(layout.bodySize * 2)
     ctx.fillStyle = '#d8b16b'
-    ctx.font = `400 ${layout.bodySize - 4}px ${fontStack}`
+    ctx.font = `400 ${layout.bodySize - 3}px ${fontStack}`
     ctx.fillText(`你问的是：${summarize(content.question, 40)}`, width / 2, cursor)
   }
 
@@ -196,7 +249,7 @@ export async function renderShareImage(
   ctx.fillStyle = '#e6e3f4'
   ctx.font = `400 ${layout.bodySize}px ${fontStack}`
   const lineHeight = Math.round(layout.bodySize * 1.7)
-  for (const line of wrapText(summarize(content.core, 220), maxWidth, (text) =>
+  for (const line of wrapText(summarize(content.core, 240), maxWidth, (text) =>
     ctx.measureText(text).width,
   )) {
     if (cursor > layout.brandY - lineHeight * 3) break
@@ -204,7 +257,7 @@ export async function renderShareImage(
     cursor += lineHeight
   }
 
-  cursor += 26
+  cursor += 24
   ctx.fillStyle = '#f1dcad'
   ctx.font = `500 ${layout.bodySize}px ${fontStack}`
   for (const line of wrapText(`可以试试：${summarize(content.advice, 80)}`, maxWidth, (text) =>

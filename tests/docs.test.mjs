@@ -91,12 +91,20 @@ describe('参考步骤文档', () => {
     assert.match(readme, /create-shortcut\.ps1/)
   })
 
-  it('第 7 节记录了牌阵改造方案，并标明尚未实施', () => {
+  it('第 7 节记录了牌阵与正逆位的实施结果', () => {
     assert.ok(
-      stepsDoc.includes('## 7. 下一步改造：牌阵与多张牌的顺序（尚未实施）'),
+      stepsDoc.includes('## 7. 牌阵、正逆位与多张牌的顺序（已实施）'),
       '参考步骤缺少牌阵改造小节',
     )
-    for (const marker of ['牌位', '顺序', 'src/lib/spreads.ts', '关系层', '528 条']) {
+    for (const marker of [
+      '牌位',
+      '顺序',
+      'src/lib/spreads.ts',
+      'src/lib/reversal.ts',
+      'buildSynthesis',
+      '关系层',
+      '528 条',
+    ]) {
       assert.ok(stepsDoc.includes(marker), `牌阵改造方案缺少：${marker}`)
     }
     assert.match(stepsDoc, /按问题类型自动推荐/)
@@ -159,6 +167,24 @@ describe('产品设计文档 · 占卜方法与用户旅程', () => {
     const card = await readFile(path.join(root, 'src', 'content', 'cards', 'swords-08.mdx'), 'utf8')
     assert.match(card, /name: 宝剑八/)
     assert.ok(designDoc.includes('这张牌不意味着什么'), '旅程应提到「不意味着什么」小节')
+  })
+
+  it('牌阵与正逆位的口径已经和代码对齐', () => {
+    for (const marker of [
+      '### 11.7 逆位怎么落到一张牌上',
+      '处境牌阵',
+      '正逆位随洗牌随机出现',
+      'cards: [{ cardId, reversed }]',
+    ]) {
+      assert.ok(designDoc.includes(marker), `产品设计文档缺少：${marker}`)
+    }
+    assert.ok(!designDoc.includes('MVP 只做正位'), '产品设计文档还在说只做正位')
+  })
+
+  it('牌阵与逆位用到的实现文件都真实存在', async () => {
+    for (const file of ['src/lib/spreads.ts', 'src/lib/reversal.ts', 'src/scripts/read-app.ts']) {
+      assert.ok(await exists(path.join(root, file)), `缺少文件：${file}`)
+    }
   })
 })
 

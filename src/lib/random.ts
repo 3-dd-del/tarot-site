@@ -33,6 +33,18 @@ export function pickOne<T>(items: readonly T[], random: RandomSource = cryptoRan
   return items[random(items.length)] as T
 }
 
+/** Fisher-Yates 洗牌，随机源同样是 crypto，不用 Math.random。 */
+export function shuffle<T>(items: readonly T[], random: RandomSource = cryptoRandomInt): T[] {
+  const result = [...items]
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const target = random(index + 1)
+    const swap = result[index]!
+    result[index] = result[target]!
+    result[target] = swap
+  }
+  return result
+}
+
 /** 时间戳，抽牌时一并记录，用于当天重抽限制与可追溯性。 */
 export function nowStamp(clock: () => number = Date.now): number {
   return clock()

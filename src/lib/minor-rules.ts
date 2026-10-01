@@ -30,6 +30,14 @@ export const SUIT_DOMAIN: Record<Suit, string> = {
   pentacles: '星币的底色是现实条件，它关心的是时间、身体、钱这些摸得到的东西',
 }
 
+/** 花色的主题词，用于牌阵层面的归纳。 */
+export const SUIT_TOPIC: Record<Suit, string> = {
+  wands: '行动与热情',
+  cups: '感受与关系',
+  swords: '想法与沟通',
+  pentacles: '现实与资源',
+}
+
 /** 数字阶段：1–10 的阶段含义，宫廷牌单独给一组。 */
 export const NUMBER_STAGE: Record<number, string> = {
   1: '数字 1 是一粒刚落到手里的种子，事情还在起点，方向比速度重要',
