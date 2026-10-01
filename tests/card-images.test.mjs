@@ -101,3 +101,31 @@ describe('素材来源记录', () => {
     assert.match(text, /steve-p\.org/)
   })
 })
+
+const designDoc = await readFile(path.join(root, 'docs', 'product-design.md'), 'utf8')
+
+describe('产品设计文档', () => {
+  it('技术方案收录了框架、素材、卡片格式、出图与埋点五项决策', () => {
+    for (const heading of [
+      '### 7.1 框架选择：Astro',
+      '### 7.3 牌面素材策略',
+      '### 7.4 卡片内容的存储格式',
+      '### 7.5 分享卡片出图方案',
+      '### 7.6 后端与埋点',
+    ]) {
+      assert.ok(designDoc.includes(heading), `产品设计文档缺少小节：${heading}`)
+    }
+  })
+
+  it('牌数据示例说明了 frontmatter + MDX 正文的切分方式', () => {
+    assert.match(designDoc, /### 5\.1 牌数据/)
+    assert.match(designDoc, /src\/content\/cards\/\*\.mdx/)
+    assert.match(designDoc, /frontmatter/)
+  })
+
+  it('技术选型表与牌面素材策略不互相矛盾', () => {
+    assert.ok(designDoc.includes('| 框架 | Astro |'), '选型表里缺少 Astro')
+    assert.match(designDoc, /public\/img\/cards\//)
+    assert.match(designDoc, /docs\/image-sources\.md/)
+  })
+})
