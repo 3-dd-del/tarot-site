@@ -1,0 +1,10 @@
+{
+  "name": "tarot-site",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "塔罗牌主题网站",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\""
+  }
+}
