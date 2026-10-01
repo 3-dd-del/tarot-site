@@ -112,6 +112,8 @@ function start(app: HTMLElement) {
   /* ---------- 渲染 ---------- */
 
   function render() {
+    // 便于冒烟检查与人工排查：当前步骤挂在根节点上。
+    app.dataset.stage = session.stage
     for (const step of nodes.steps) {
       step.classList.toggle('hidden', step.dataset.step !== session.stage)
     }
@@ -654,7 +656,17 @@ function start(app: HTMLElement) {
 
   async function copyReading() {
     const status = stepNode('finish').querySelector<HTMLElement>('[data-share-status]')
-    if (!lastReading) return
+    const report = (message: string) => {
+      if (!status) return
+      status.classList.remove('hidden')
+      status.textContent = message
+    }
+
+    if (!lastReading) {
+      report('这次解读还没有生成完，稍后再试一次。')
+      return
+    }
+
     const text = [
       `我抽到的是：${lastReading.question}`,
       '',
@@ -664,18 +676,9 @@ function start(app: HTMLElement) {
       '',
       '—— 解读是参考，不是结论。',
     ].join('\n')
-    try {
-      await navigator.clipboard.writeText(text)
-      if (status) {
-        status.classList.remove('hidden')
-        status.textContent = '解读文字已复制。'
-      }
-    } catch {
-      if (status) {
-        status.classList.remove('hidden')
-        status.textContent = '这个浏览器不允许自动复制，可以手动选中文字。'
-      }
-    }
+
+    const copied = await writeClipboard(text)
+    report(copied ? '解读文字已复制。' : '这个浏览器不允许自动复制，可以直接选中页面上的文字。')
   }
 
   function refreshFreeDrawLabel() {
@@ -699,4 +702,37 @@ function readJSON(storage: Storage, key: string): unknown {
 
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * 复制文本。
+ * 剪贴板 API 在部分浏览器里会一直挂着不 resolve，所以加超时，失败再退回 execCommand。
+ */
+async function writeClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await Promise.race([
+        navigator.clipboard.writeText(text),
+        wait(1200).then(() => Promise.reject(new Error('clipboard timeout'))),
+      ])
+      return true
+    }
+  } catch {
+    /* 继续走降级方案 */
+  }
+
+  try {
+    const area = document.createElement('textarea')
+    area.value = text
+    area.setAttribute('readonly', '')
+    area.style.position = 'fixed'
+    area.style.top = '-1000px'
+    document.body.append(area)
+    area.select()
+    const ok = typeof document.execCommand === 'function' ? document.execCommand('copy') : false
+    area.remove()
+    return ok
+  } catch {
+    return false
+  }
 }
