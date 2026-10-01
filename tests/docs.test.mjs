@@ -89,6 +89,18 @@ describe('参考步骤文档', () => {
     assert.match(readme, /pnpm verify/)
     assert.match(readme, /create-shortcut\.ps1/)
   })
+
+  it('第 7 节记录了牌阵改造方案，并标明尚未实施', () => {
+    assert.ok(
+      stepsDoc.includes('## 7. 下一步改造：牌阵与多张牌的顺序（尚未实施）'),
+      '参考步骤缺少牌阵改造小节',
+    )
+    for (const marker of ['牌位', '顺序', 'src/lib/spreads.ts', '关系层', '528 条']) {
+      assert.ok(stepsDoc.includes(marker), `牌阵改造方案缺少：${marker}`)
+    }
+    assert.match(stepsDoc, /按问题类型自动推荐/)
+    assert.match(stepsDoc, /翻牌顺序不改变抽到的牌/)
+  })
 })
 
 describe('文档链接', () => {
