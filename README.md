@@ -6,6 +6,8 @@
 
 项目刚刚建立，尚未开始搭建。
 
+产品方向与流程设计见 [docs/product-design.md](docs/product-design.md)。
+
 ## 规划中的方向
 
 暂定 MVP 形态为 **「在线抽牌工具 + 牌义百科」**：
