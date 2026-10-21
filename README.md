@@ -15,7 +15,7 @@
 
 <p align="center">
   <img alt="Astro" src="https://img.shields.io/badge/Astro-7-FF5D01?logo=astro&logoColor=white&style=flat-square">
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white&style=flat-square">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white&style=flat-square">
   <img alt="Zero Backend" src="https://img.shields.io/badge/backend-none-6B7280?style=flat-square">
   <a href="https://3-dd-del.github.io/tarot-site/"><img alt="GitHub Pages" src="https://img.shields.io/badge/deploy-GitHub%20Pages-2EA44F?logo=githubpages&logoColor=white&style=flat-square"></a>
   <a href="https://github.com/3-dd-del/tarot-site/actions/workflows/pages.yml"><img alt="Deploy status" src="https://github.com/3-dd-del/tarot-site/actions/workflows/pages.yml/badge.svg"></a>
